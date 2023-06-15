@@ -1,19 +1,19 @@
 import UIKit
 
 final class MovieQuizViewController: UIViewController {
-    struct QuizQuestion {
+    private struct QuizQuestion {
         let image: String
         let text: String
         let correctAnswer: Bool
     }
     
-    struct QuizStepViewModel {
+    private struct QuizStepViewModel {
         let image: UIImage
         let question: String
         let questionNumber: String
     }
     
-    struct QuizResultsViewModel {
+    private struct QuizResultsViewModel {
         let title: String
         let text: String
         let buttonText: String
@@ -101,7 +101,6 @@ final class MovieQuizViewController: UIViewController {
     }
     
     private func show(quiz step: QuizStepViewModel) {
-        
         imageView.layer.masksToBounds = true
         imageView.layer.borderColor = UIColor.white.cgColor
         imageView.layer.cornerRadius = 20
