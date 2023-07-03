@@ -7,19 +7,7 @@
 
 import UIKit
 
-final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
-    func didReceiveNextQuestion(question: QuizQuestion?) {
-        guard let question = question else {
-            return
-        }
-        
-        currentQuestion = question
-        let viewModel = convert(model: question)
-        DispatchQueue.main.async { [weak self] in
-            self?.show(quiz: viewModel)
-        }
-    }
-    
+final class MovieQuizViewController: UIViewController {
     @IBOutlet weak private var imageView: UIImageView!
     @IBOutlet weak private var textLabel: UILabel!
     @IBOutlet weak private var counterLabel: UILabel!
@@ -32,8 +20,14 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         questionFactory = QuestionFactory(delegate: self)
         
         questionFactory?.requestNextQuestion()
+
         alertPresenter = AlertPresenter(delegate: self)
-        statisticService = StatisticServiceImplementation(userDefaults: Foundation.UserDefaults.standard,decoder: JSONDecoder(), encoder: JSONEncoder(), dateProvider: { Date() } )
+        statisticService = StatisticServiceImplementation(
+            userDefaults: Foundation.UserDefaults.standard,
+            decoder: JSONDecoder(),
+            encoder: JSONEncoder(),
+            dateProvider: { return Date() }
+        )
         
     }
     
@@ -65,13 +59,14 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private var currentQuestion: QuizQuestion?
     private var questionFactory: QuestionFactoryProtocol?
     private var alertPresenter: AlertPresenterProtocol?
-    private var statisticService: StatisticService?
+    private var statisticService: StatisticServiceProtocol?
     
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
         let questionStep = QuizStepViewModel(
             image: UIImage(named: model.image) ?? UIImage(),
             question: model.text,
-            questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
+            questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)"
+        )
         
         return questionStep
     }
@@ -107,9 +102,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         isButtonsEnabled = false
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-            guard let self = self else { return }
-            self.showNextQuestionOrResults()
-            self.isButtonsEnabled = true
+            self?.showNextQuestionOrResults()
+            self?.isButtonsEnabled = true
         }
     }
     
@@ -119,13 +113,14 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             assertionFailure("Ошибка")
             return
         }
+
         let message =
                 """
                 \n Ваш результат: \(correctAnswers)/\(questionsAmount)
                 \n Количество сыгранных квизов: \(statisticService.gamesCount)
                 \n Рекорд: \(statisticService.bestGame?.correct ?? 0)/\(statisticService.bestGame?.total ?? 0) (\((statisticService.bestGame!.date.dateTimeString)))
                 \n Средняя точность \(String(format: "%.2f",statisticService.totalAccuracy))%
-     """
+                """
         let viewModel = AlertModel(
             title: "Этот раунд окончен!",
             message: message,
@@ -137,6 +132,22 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                 self.questionFactory?.requestNextQuestion()
             }
         )
+
         alertPresenter?.showQuizResult(model: viewModel)
+    }
+}
+
+extension MovieQuizViewController: QuestionFactoryDelegate {
+    func didReceiveNextQuestion(question: QuizQuestion?) {
+        guard let question = question else {
+            return
+        }
+        
+        currentQuestion = question
+        let viewModel = convert(model: question)
+
+        DispatchQueue.main.async { [weak self] in
+            self?.show(quiz: viewModel)
+        }
     }
 }

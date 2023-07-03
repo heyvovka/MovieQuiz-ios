@@ -1,30 +1,11 @@
 //
-//  StatisticService.swift
+//  StatisticServiceImplementation.swift
 //  MovieQuiz
 //
 //  Created by Vladimir Savorovsky on 03.07.2023.
 //
 
 import Foundation
-
-struct GameRecord: Codable {
-    let correct: Int
-    let total: Int
-    let date: Date
-}
-
-extension GameRecord: Comparable {
-    private var accuracy: Double {
-        guard total != 0 else {
-            return 0
-        }
-        return Double(correct) / Double(total)
-        
-    }
-    static func < (lhs: GameRecord, rhs: GameRecord) -> Bool {
-        lhs.accuracy < rhs.accuracy
-    }
-}
 
 final class StatisticServiceImplementation {
     private let userDefaults: UserDefaults
@@ -47,8 +28,7 @@ final class StatisticServiceImplementation {
     }
 }
 
-extension StatisticServiceImplementation: StatisticService {
-    
+extension StatisticServiceImplementation: StatisticServiceProtocol {
     var gamesCount: Int {
         get  {
             userDefaults.integer(forKey: Keys.gamesCount.rawValue)
@@ -66,6 +46,7 @@ extension StatisticServiceImplementation: StatisticService {
             userDefaults.set(newValue, forKey: Keys.total.rawValue)
         }
     }
+
     var totalAccuracy: Double {
         (Double(correct) / Double(total)) * 100
     }
@@ -83,9 +64,11 @@ extension StatisticServiceImplementation: StatisticService {
         get {
             guard
                 let data = userDefaults.data(forKey: Keys.bestGame.rawValue),
-                let bestGame = try? decoder.decode(GameRecord.self, from: data) else {
+                let bestGame = try? decoder.decode(GameRecord.self, from: data)
+            else {
                 return nil
             }
+
             return bestGame
         }
         set {
@@ -93,12 +76,19 @@ extension StatisticServiceImplementation: StatisticService {
             userDefaults.set(data, forKey: Keys.bestGame.rawValue)
         }
     }
+    
     func store(correct: Int, total: Int) {
         self.correct += correct
         self.total += total
         self.gamesCount += 1
+
         let date = dateProvider()
-        let currentGameRecord = GameRecord(correct: correct, total: total, date: date)
+        let currentGameRecord = GameRecord(
+            correct: correct,
+            total: total,
+            date: date
+        )
+
         if let previosGameRecord = bestGame {
             if currentGameRecord > previosGameRecord {
                 bestGame = currentGameRecord
