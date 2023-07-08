@@ -37,7 +37,7 @@ final class MovieQuizViewController: UIViewController {
         }
         let givenAnswer = true
         
-        guard self.isButtonsEnabled else { return }
+        guard isButtonsEnabled else { return }
         
         showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
@@ -48,7 +48,7 @@ final class MovieQuizViewController: UIViewController {
         }
         let givenAnswer = false
         
-        guard self.isButtonsEnabled else { return }
+        guard isButtonsEnabled else { return }
         
         showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
@@ -86,7 +86,7 @@ final class MovieQuizViewController: UIViewController {
             showQuizResult()
         } else {
             currentQuestionIndex += 1
-            self.questionFactory?.requestNextQuestion()
+            questionFactory?.requestNextQuestion()
         }
     }
     

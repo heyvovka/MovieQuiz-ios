@@ -48,7 +48,11 @@ extension StatisticServiceImplementation: StatisticServiceProtocol {
     }
 
     var totalAccuracy: Double {
-        (Double(correct) / Double(total)) * 100
+            guard total != 0
+            else {
+                return 0
+            }
+            return Double(correct)/Double(total) * 100
     }
     
     var correct: Int {
