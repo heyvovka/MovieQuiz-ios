@@ -188,3 +188,9 @@ extension MovieQuizViewController: QuestionFactoryDelegate {
         }
     }
 }
+
+extension MovieQuizViewController {
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
+    }
+}
