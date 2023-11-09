@@ -90,7 +90,7 @@ final class MovieQuizViewController: UIViewController {
                                buttonText: "Попробовать еще раз") { [weak self] in
             guard let self = self else { return }
             
-            presenter.currentQuestionIndex = 0
+            presenter.resetQuestionIndex()
             self.correctAnswers = 0
             self.showLoadingIndicator()
             self.questionFactory?.loadData()
@@ -111,10 +111,10 @@ final class MovieQuizViewController: UIViewController {
     }
     
     private func showNextQuestionOrResults() {
-        if presenter.currentQuestionIndex == presenter.questionsAmount - 1 {
+        if presenter.isLastQuestion() {
             showQuizResult()
         } else {
-            presenter.currentQuestionIndex += 1
+            presenter.switchToNextQuestion()
             questionFactory?.requestNextQuestion()
         }
     }
@@ -157,7 +157,7 @@ final class MovieQuizViewController: UIViewController {
             completion: { [weak self] in
                 guard let self = self else { return }
                 self.correctAnswers = 0
-                presenter.currentQuestionIndex = 0
+                presenter.resetQuestionIndex()
                 self.questionFactory?.requestNextQuestion()
             }
         )
