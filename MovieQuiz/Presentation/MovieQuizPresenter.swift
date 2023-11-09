@@ -9,6 +9,8 @@ import Foundation
 import UIKit
 
 final class MovieQuizPresenter {
+    var currentQuestion: QuizQuestion?
+    weak var viewController: MovieQuizViewController?
     private var currentQuestionIndex = 0
     let questionsAmount: Int = 10
     
@@ -30,5 +32,15 @@ final class MovieQuizPresenter {
             question: model.text,
             questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)"
         )
+    }
+    
+    func yesButtonClicked() {
+        guard let currentQuestion = currentQuestion else {
+            return
+        }
+        let givenAnswer = true
+        
+        
+        viewController?.showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
 }
