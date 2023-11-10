@@ -78,7 +78,7 @@ final class MovieQuizViewController: UIViewController {
                                buttonText: "Попробовать еще раз") { [weak self] in
             guard let self = self else { return }
             
-            presenter.resetQuestionIndex()
+            presenter.restartGame()
             presenter.correctAnswers = 0
             self.showLoadingIndicator()
             self.questionFactory?.loadData()
@@ -108,9 +108,7 @@ final class MovieQuizViewController: UIViewController {
     }
     
     func showAnswerResult(isCorrect: Bool) {
-        if isCorrect {
-            presenter.correctAnswers += 1
-        }
+        presenter.didAnswer(isCorrectAnswer: isCorrect)
         
         imageView.layer.masksToBounds = true
         imageView.layer.borderWidth = 8
