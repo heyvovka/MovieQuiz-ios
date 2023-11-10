@@ -8,7 +8,7 @@
 import UIKit
 
 final class MovieQuizViewController: UIViewController {
-    private let presenter = MovieQuizPresenter()
+    private var presenter: MovieQuizPresenter!
     
     @IBOutlet weak private var imageView: UIImageView!
     @IBOutlet weak private var textLabel: UILabel!
@@ -20,21 +20,10 @@ final class MovieQuizViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        presenter.viewController = self
-        
-        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
-        showLoadingIndicator()
-        questionFactory?.loadData()
-        questionFactory?.requestNextQuestion()
+        presenter = MovieQuizPresenter(viewController: self)
+        presenter.showNextQuestionOrResults()
 
         alertPresenter = AlertPresenter(delegate: self)
-        statisticService = StatisticServiceImplementation(
-            userDefaults: Foundation.UserDefaults.standard,
-            decoder: JSONDecoder(),
-            encoder: JSONEncoder(),
-            dateProvider: { return Date() }
-        )
-        
     }
     
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
@@ -47,30 +36,19 @@ final class MovieQuizViewController: UIViewController {
         presenter.noButtonClicked()
     }
     
-    private var questionFactory: QuestionFactoryProtocol?
     private var alertPresenter: AlertPresenterProtocol?
-    private var statisticService: StatisticServiceProtocol?
     
-    private func showLoadingIndicator() {
+    func showLoadingIndicator() {
         activityIndicator.isHidden = false
         activityIndicator.startAnimating()
     }
     
-    private func hideLoadingIndicator() {
+    func hideLoadingIndicator() {
         activityIndicator.isHidden = true
         activityIndicator.stopAnimating()
     }
     
-    func didFailToLoadData(with error: Error) {
-        showNetworkError(message: error.localizedDescription)
-    }
-    
-    func didLoadDataFromServer() {
-        hideLoadingIndicator()
-        questionFactory?.requestNextQuestion()
-    }
-    
-    private func showNetworkError(message: String) {
+    func showNetworkError(message: String) {
         hideLoadingIndicator()
         
         let viewModel = AlertModel(title: "Ошибка",
@@ -79,10 +57,6 @@ final class MovieQuizViewController: UIViewController {
             guard let self = self else { return }
             
             presenter.restartGame()
-            presenter.correctAnswers = 0
-            self.showLoadingIndicator()
-            self.questionFactory?.loadData()
-            self.questionFactory?.requestNextQuestion()
         }
         
         alertPresenter?.show(model: viewModel)
@@ -98,15 +72,6 @@ final class MovieQuizViewController: UIViewController {
         counterLabel.text = step.questionNumber
     }
     
-    private func showNextQuestionOrResults() {
-        if presenter.isLastQuestion() {
-            presenter.showQuizResult(statisticService: self.statisticService, questionFactory: self.questionFactory, alertPresenter: self.alertPresenter)
-        } else {
-            presenter.switchToNextQuestion()
-            questionFactory?.requestNextQuestion()
-        }
-    }
-    
     func showAnswerResult(isCorrect: Bool) {
         presenter.didAnswer(isCorrectAnswer: isCorrect)
         
@@ -117,16 +82,10 @@ final class MovieQuizViewController: UIViewController {
         isButtonsEnabled = false
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-            self?.showNextQuestionOrResults()
+            self?.presenter.showNextQuestionOrResults()
             self?.isButtonsEnabled = true
         }
     }
-}
-
-extension MovieQuizViewController: QuestionFactoryDelegate {
-    func didReceiveNextQuestion(question: QuizQuestion?) {
-            presenter.didReceiveNextQuestion(question: question)
-        }
 }
 
 extension MovieQuizViewController {

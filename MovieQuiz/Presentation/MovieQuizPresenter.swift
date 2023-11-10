@@ -8,12 +8,30 @@
 import Foundation
 import UIKit
 
-final class MovieQuizPresenter {
+final class MovieQuizPresenter: QuestionFactoryDelegate {
     var currentQuestion: QuizQuestion?
     weak var viewController: MovieQuizViewController?
+    private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestionIndex = 0
-    var correctAnswers = 0
+    private var correctAnswers = 0
     let questionsAmount: Int = 10
+    private var alertPresenter: AlertPresenterProtocol?
+    private var statisticService: StatisticServiceProtocol?
+    
+    init(viewController: MovieQuizViewController) {
+            self.viewController = viewController
+            
+            questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+            questionFactory?.loadData()
+            viewController.showLoadingIndicator()
+            alertPresenter = AlertPresenter(delegate: viewController)
+            statisticService = StatisticServiceImplementation(
+                userDefaults: Foundation.UserDefaults.standard,
+                decoder: JSONDecoder(),
+                encoder: JSONEncoder(),
+                dateProvider: { return Date() }
+            )
+        }
     
        func isLastQuestion() -> Bool {
            currentQuestionIndex == questionsAmount - 1
@@ -21,6 +39,10 @@ final class MovieQuizPresenter {
        
        func restartGame() {
            currentQuestionIndex = 0
+           correctAnswers = 0
+           viewController?.showLoadingIndicator()
+           self.questionFactory?.loadData()
+           self.questionFactory?.requestNextQuestion()
        }
        
        func switchToNextQuestion() {
@@ -69,11 +91,7 @@ final class MovieQuizPresenter {
             self?.viewController?.show(quiz: viewModel)
         }
     }
-    func showQuizResult(
-        statisticService: StatisticServiceProtocol?,
-        questionFactory: QuestionFactoryProtocol?,
-        alertPresenter: AlertPresenterProtocol?
-    ) {
+    func showQuizResult() {
         statisticService?.store(correct: correctAnswers, total: questionsAmount)
         guard let statisticService = statisticService else {
             assertionFailure("Ошибка")
@@ -101,5 +119,34 @@ final class MovieQuizPresenter {
 
         alertPresenter?.show(model: viewModel)
     }
+    func showNextQuestionOrResults() {
+        if isLastQuestion() {
+            showQuizResult()
+        } else {
+            switchToNextQuestion()
+            questionFactory?.requestNextQuestion()
+        }
+    }
+    func didLoadDataFromServer() {
+            viewController?.hideLoadingIndicator()
+            questionFactory?.requestNextQuestion()
+        }
+        
+        func didFailToLoadData(with error: Error) {
+            let message = error.localizedDescription
+            viewController?.showNetworkError(message: message)
+        }
+        
+        func didRecieveNextQuestion(question: QuizQuestion?) {
+            guard let question = question else {
+                return
+            }
+            
+            currentQuestion = question
+            let viewModel = convert(model: question)
+            DispatchQueue.main.async { [weak self] in
+                self?.viewController?.show(quiz: viewModel)
+            }
+        }
     
 }
