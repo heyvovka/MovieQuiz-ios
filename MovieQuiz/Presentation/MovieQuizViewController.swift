@@ -15,8 +15,6 @@ final class MovieQuizViewController: UIViewController {
     @IBOutlet weak private var counterLabel: UILabel!
     @IBOutlet weak private var activityIndicator: UIActivityIndicatorView!
     
-    private var isButtonsEnabled: Bool = true
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -27,12 +25,10 @@ final class MovieQuizViewController: UIViewController {
     }
     
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
-        guard isButtonsEnabled else { return }
         presenter.yesButtonClicked()
     }
     
     @IBAction private func noButtonClicked(_ sender: UIButton) {
-        guard isButtonsEnabled else { return }
         presenter.noButtonClicked()
     }
     
@@ -72,19 +68,10 @@ final class MovieQuizViewController: UIViewController {
         counterLabel.text = step.questionNumber
     }
     
-    func showAnswerResult(isCorrect: Bool) {
-        presenter.didAnswer(isCorrectAnswer: isCorrect)
-        
+    func highlightImageBorder(isCorrectAnswer: Bool) {
         imageView.layer.masksToBounds = true
         imageView.layer.borderWidth = 8
-        imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
-        
-        isButtonsEnabled = false
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-            self?.presenter.showNextQuestionOrResults()
-            self?.isButtonsEnabled = true
-        }
+        imageView.layer.borderColor = isCorrectAnswer ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
     }
 }
 
