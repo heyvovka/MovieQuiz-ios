@@ -38,19 +38,16 @@ final class MovieQuizViewController: UIViewController {
     }
     
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
-        presenter.currentQuestion = currentQuestion
         guard isButtonsEnabled else { return }
         presenter.yesButtonClicked()
     }
     
     @IBAction private func noButtonClicked(_ sender: UIButton) {
-        presenter.currentQuestion = currentQuestion
         guard isButtonsEnabled else { return }
         presenter.noButtonClicked()
     }
     
     private var correctAnswers = 0
-    private var currentQuestion: QuizQuestion?
     private var questionFactory: QuestionFactoryProtocol?
     private var alertPresenter: AlertPresenterProtocol?
     private var statisticService: StatisticServiceProtocol?
@@ -92,7 +89,7 @@ final class MovieQuizViewController: UIViewController {
         alertPresenter?.show(model: viewModel)
     }
     
-    private func show(quiz step: QuizStepViewModel) {
+    func show(quiz step: QuizStepViewModel) {
         imageView.layer.masksToBounds = true
         imageView.layer.borderColor = UIColor.white.cgColor
         imageView.layer.cornerRadius = 20
@@ -160,17 +157,8 @@ final class MovieQuizViewController: UIViewController {
 
 extension MovieQuizViewController: QuestionFactoryDelegate {
     func didReceiveNextQuestion(question: QuizQuestion?) {
-        guard let question = question else {
-            return
+            presenter.didReceiveNextQuestion(question: question)
         }
-        
-        currentQuestion = question
-        let viewModel = presenter.convert(model: question)
-
-        DispatchQueue.main.async { [weak self] in
-            self?.show(quiz: viewModel)
-        }
-    }
 }
 
 extension MovieQuizViewController {
