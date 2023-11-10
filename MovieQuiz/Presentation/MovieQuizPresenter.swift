@@ -12,6 +12,7 @@ final class MovieQuizPresenter {
     var currentQuestion: QuizQuestion?
     weak var viewController: MovieQuizViewController?
     private var currentQuestionIndex = 0
+    var correctAnswers = 0
     let questionsAmount: Int = 10
     
        func isLastQuestion() -> Bool {
@@ -61,4 +62,37 @@ final class MovieQuizPresenter {
             self?.viewController?.show(quiz: viewModel)
         }
     }
+    func showQuizResult(
+        statisticService: StatisticServiceProtocol?,
+        questionFactory: QuestionFactoryProtocol?,
+        alertPresenter: AlertPresenterProtocol?
+    ) {
+        statisticService?.store(correct: correctAnswers, total: questionsAmount)
+        guard let statisticService = statisticService else {
+            assertionFailure("Ошибка")
+            return
+        }
+
+        let message =
+                """
+                \n Ваш результат: \(correctAnswers)/\(questionsAmount)
+                \n Количество сыгранных квизов: \(statisticService.gamesCount)
+                \n Рекорд: \(statisticService.bestGame?.correct ?? 0)/\(statisticService.bestGame?.total ?? 0) (\((statisticService.bestGame!.date.dateTimeString)))
+                \n Средняя точность \(String(format: "%.2f",statisticService.totalAccuracy))%
+                """
+        let viewModel = AlertModel(
+            title: "Этот раунд окончен!",
+            message: message,
+            buttonText: "Сыграть ещё раз",
+            completion: { [weak self] in
+                guard let self = self else { return }
+                self.correctAnswers = 0
+                resetQuestionIndex()
+                questionFactory?.requestNextQuestion()
+            }
+        )
+
+        alertPresenter?.show(model: viewModel)
+    }
+    
 }

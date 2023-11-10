@@ -47,7 +47,6 @@ final class MovieQuizViewController: UIViewController {
         presenter.noButtonClicked()
     }
     
-    private var correctAnswers = 0
     private var questionFactory: QuestionFactoryProtocol?
     private var alertPresenter: AlertPresenterProtocol?
     private var statisticService: StatisticServiceProtocol?
@@ -80,7 +79,7 @@ final class MovieQuizViewController: UIViewController {
             guard let self = self else { return }
             
             presenter.resetQuestionIndex()
-            self.correctAnswers = 0
+            presenter.correctAnswers = 0
             self.showLoadingIndicator()
             self.questionFactory?.loadData()
             self.questionFactory?.requestNextQuestion()
@@ -101,7 +100,7 @@ final class MovieQuizViewController: UIViewController {
     
     private func showNextQuestionOrResults() {
         if presenter.isLastQuestion() {
-            showQuizResult()
+            presenter.showQuizResult(statisticService: self.statisticService, questionFactory: self.questionFactory, alertPresenter: self.alertPresenter)
         } else {
             presenter.switchToNextQuestion()
             questionFactory?.requestNextQuestion()
@@ -110,7 +109,7 @@ final class MovieQuizViewController: UIViewController {
     
     func showAnswerResult(isCorrect: Bool) {
         if isCorrect {
-            correctAnswers += 1
+            presenter.correctAnswers += 1
         }
         
         imageView.layer.masksToBounds = true
@@ -123,35 +122,6 @@ final class MovieQuizViewController: UIViewController {
             self?.showNextQuestionOrResults()
             self?.isButtonsEnabled = true
         }
-    }
-    
-    private func showQuizResult() {
-        statisticService?.store(correct: correctAnswers, total: presenter.questionsAmount)
-        guard let statisticService = statisticService else {
-            assertionFailure("Ошибка")
-            return
-        }
-
-        let message =
-                """
-                \n Ваш результат: \(correctAnswers)/\(presenter.questionsAmount)
-                \n Количество сыгранных квизов: \(statisticService.gamesCount)
-                \n Рекорд: \(statisticService.bestGame?.correct ?? 0)/\(statisticService.bestGame?.total ?? 0) (\((statisticService.bestGame!.date.dateTimeString)))
-                \n Средняя точность \(String(format: "%.2f",statisticService.totalAccuracy))%
-                """
-        let viewModel = AlertModel(
-            title: "Этот раунд окончен!",
-            message: message,
-            buttonText: "Сыграть ещё раз",
-            completion: { [weak self] in
-                guard let self = self else { return }
-                self.correctAnswers = 0
-                presenter.resetQuestionIndex()
-                self.questionFactory?.requestNextQuestion()
-            }
-        )
-
-        alertPresenter?.show(model: viewModel)
     }
 }
 
