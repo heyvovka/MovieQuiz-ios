@@ -11,7 +11,7 @@ import XCTest
 struct StubNetworkClient: NetworkRouting {
     
     enum TestError: Error {
-    case test
+        case test
     }
     
     let emulateError: Bool
@@ -61,7 +61,7 @@ struct StubNetworkClient: NetworkRouting {
 
 class MoviesLoaderTests: XCTestCase {
     func testSuccessLoading() throws {
-       
+        
         let stubNetworkClient = StubNetworkClient(emulateError: false)
         let loader = MoviesLoader(networkClient: stubNetworkClient)
         let expectation = expectation(description: "Loading expectation")
@@ -88,7 +88,7 @@ class MoviesLoaderTests: XCTestCase {
         let expectation = expectation(description: "Loading expectation")
         
         loader.loadMovies { result in
-         
+            
             switch result {
             case .failure(let error):
                 XCTAssertNotNil(error)

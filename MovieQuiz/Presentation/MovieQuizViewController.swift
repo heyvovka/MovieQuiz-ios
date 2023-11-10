@@ -19,8 +19,8 @@ final class MovieQuizViewController: UIViewController {
         super.viewDidLoad()
         
         presenter = MovieQuizPresenter(viewController: self)
-        presenter.showNextQuestionOrResults()
-
+        presenter.didLoadDataFromServer()
+        
         alertPresenter = AlertPresenter(delegate: self)
     }
     
@@ -48,8 +48,8 @@ final class MovieQuizViewController: UIViewController {
         hideLoadingIndicator()
         
         let viewModel = AlertModel(title: "Ошибка",
-                               message: message,
-                               buttonText: "Попробовать еще раз") { [weak self] in
+                                   message: message,
+                                   buttonText: "Попробовать еще раз") { [weak self] in
             guard let self = self else { return }
             
             presenter.restartGame()
