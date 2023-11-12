@@ -49,7 +49,7 @@
                                             <constraint firstAttribute="width" secondItem="QPl-6i-Hfv" secondAttribute="height" multiplier="2:3" id="Sir-R3-wvx"/>
                                         </constraints>
                                     </imageView>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Рейтинг этого фильма меньше, чем 5?" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wFO-jj-k6u" userLabel="Question Label">
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wFO-jj-k6u" userLabel="Question Label">
                                         <rect key="frame" x="0.0" y="624.5" width="374" height="99.5"/>
                                         <fontDescription key="fontDescription" name="YSDisplay-Medium" family="YS Display" pointSize="23"/>
                                         <color key="textColor" name="YP White"/>
@@ -103,17 +103,23 @@
                                     </stackView>
                                 </subviews>
                             </stackView>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="bdd-i6-gm6">
+                                <rect key="frame" x="197" y="438" width="20" height="20"/>
+                            </activityIndicatorView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" name="YP Black"/>
                         <constraints>
+                            <constraint firstItem="bdd-i6-gm6" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Eba-Hp-qXb"/>
                             <constraint firstItem="DQl-9o-3hX" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="Fd3-JX-tgu"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="DQl-9o-3hX" secondAttribute="trailing" constant="20" id="k3V-Le-0TE"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="DQl-9o-3hX" secondAttribute="bottom" id="kDv-bb-RZA"/>
+                            <constraint firstItem="bdd-i6-gm6" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="kwO-9g-IcW"/>
                             <constraint firstItem="DQl-9o-3hX" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="10" id="vgD-Og-Bjk"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="activityIndicator" destination="bdd-i6-gm6" id="zZ4-sM-Gmc"/>
                         <outlet property="counterLabel" destination="ogA-Zv-Lx2" id="nFW-7V-aUy"/>
                         <outlet property="imageView" destination="QPl-6i-Hfv" id="Hh2-KT-udw"/>
                         <outlet property="textLabel" destination="wFO-jj-k6u" id="Ihh-Iy-cvN"/>
