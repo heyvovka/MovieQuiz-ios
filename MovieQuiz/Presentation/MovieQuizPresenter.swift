@@ -5,27 +5,26 @@
 //  Created by Vladimir Savorovsky on 10.11.2023.
 //
 
-import Foundation
 import UIKit
 
 final class MovieQuizPresenter: QuestionFactoryDelegate {
     var currentQuestion: QuizQuestion?
-    weak var viewController: MovieQuizViewController?
     private var questionFactory: QuestionFactoryProtocol?
+    private weak var viewController: MovieQuizViewControllerProtocol?
+    private var alertPresenter: AlertPresenterProtocol?
+    private var statisticService: StatisticServiceProtocol?
     private var currentQuestionIndex = 0
     private var correctAnswers = 0
     let questionsAmount: Int = 10
-    private var alertPresenter: AlertPresenterProtocol?
-    private var statisticService: StatisticServiceProtocol?
     private var isButtonsEnabled: Bool = true
     
-    init(viewController: MovieQuizViewController) {
+    init(viewController: MovieQuizViewControllerProtocol) {
         self.viewController = viewController
         
         questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         questionFactory?.loadData()
         viewController.showLoadingIndicator()
-        alertPresenter = AlertPresenter(delegate: viewController)
+        alertPresenter = AlertPresenter(delegate: viewController as! UIViewController)
         statisticService = StatisticServiceImplementation(
             userDefaults: Foundation.UserDefaults.standard,
             decoder: JSONDecoder(),
