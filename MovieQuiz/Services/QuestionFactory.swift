@@ -7,7 +7,7 @@
 
 import Foundation
 
-class QuestionFactory {
+final class QuestionFactory {
     weak var delegate: QuestionFactoryDelegate?
     
     private let moviesLoader: MoviesLoading
